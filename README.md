@@ -17,3 +17,7 @@ Vulnerabilities by vulns
 ```
 python nessus.py nessus_file.csv --vulns
 ```
+Vulnerabilities & fixes
+```
+python nessus.py nessus_file.csv --fix --export my_file
+```
