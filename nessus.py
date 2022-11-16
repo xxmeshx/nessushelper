@@ -2,6 +2,7 @@ import pandas as pd
 import plotext
 import re
 import argparse
+from collections import Counter
 from tabulate import tabulate
 
 
@@ -60,7 +61,7 @@ def fix(df,export=''):
 		exportar=pd.DataFrame(data=data)
 		exportar.to_csv(args.export+'.csv',sep=',',encoding='utf-8')
 		print(args.export+'.csv exported correctly')
-	return print(tabulate(data, headers='keys', tablefmt='psql'))
+	return print(tabulate(data, headers='keys', tablefmt='grid'))
 
 data = pd.read_csv(args.csv,sep=',', encoding='UTF-8')
 df = data.loc[(data['Risk'] != 'None')]
@@ -70,6 +71,7 @@ if args.all:
 	df2 = pd.DataFrame(data)
 	print(tabulate(df2, headers='keys', tablefmt='psql'))
 	vulns(df)
+	fix(df)
 	hosts(df)
 
 if args.risk:
