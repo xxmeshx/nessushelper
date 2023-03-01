@@ -12,14 +12,15 @@ parser.add_argument('csv', help="CSV to load")
 parser.add_argument('--risk', action='store_true', help='Show the vulnerabilities by Risk')
 parser.add_argument('--vulns', action='store_true', help='Show the vulnerabilities')
 parser.add_argument('--fix', action='store_true', help='Show the fix by vulnerability')
-parser.add_argument('--export', action='store', help='Name to export the information requested', type=str)
+parser.add_argument('--exportfix', action='store', help='Name to export the information about fixes', type=str)
+parser.add_argument('--exportvulns', action='store', help='Name to export the information about vulns', type=str)
 parser.add_argument('--v', action='store', help='Show the vulnerabilities by Risk',type=str)
 parser.add_argument('--host', action='store_true', help='Show the vulnerabilities by Host')
 parser.add_argument('--all', action='store_true', help='Show all available information')
 
 args = parser.parse_args()
 print(args.csv)
-
+print(args.exportfix)
 def hosts(df):
 	df=df
 	hosts = list(df['Host'].value_counts().keys())
@@ -27,7 +28,8 @@ def hosts(df):
 	#plotext.title('vulnerabilities per host')
 	plotext.simple_bar(hosts,count,title="Vulnerabilities per host")
 	plotext.show()
-def vulns(df):
+def vulns(df,export=''):
+	export=export
 	df=df
 	vuln_name = []
 	vuln_host = []
@@ -45,6 +47,10 @@ def vulns(df):
 		vuln_cve.append(', '.join(list(set(all_vulns['CVE'].tolist()))))
 		vuln_count.append(all_vulns['Name'].tolist().count(str(x)))
 		data = {'Vulnerability': vuln_name, 'Hosts': vuln_host, 'Risk': vuln_risk, 'CVE': vuln_cve, 'Count': vuln_count}
+	if export!=None:
+		exportar=pd.DataFrame(data=data)
+		exportar.to_csv(args.exportvulns+'.csv',sep=',',encoding='utf-8')
+		print(args.exportvulns+'.csv exported correctly')
 	return print(tabulate(data, headers='keys', tablefmt='psql'))
 def fix(df,export=''):
 	df=df
@@ -57,10 +63,10 @@ def fix(df,export=''):
 		vuln_name.append(x)
 		vuln_fix.append(', '.join(list(set(all_vulns['Plugin Output'].tolist()))))
 		data = {'Vulnerability': vuln_name, 'Fix': vuln_fix}
-	if export!='':
+	if export!=None:
 		exportar=pd.DataFrame(data=data)
-		exportar.to_csv(args.export+'.csv',sep=',',encoding='utf-8')
-		print(args.export+'.csv exported correctly')
+		exportar.to_csv(args.exportfix+'.csv',sep=',',encoding='utf-8')
+		print(args.exportfix+'.csv exported correctly')
 	return print(tabulate(data, headers='keys', tablefmt='grid'))
 
 data = pd.read_csv(args.csv,sep=',', encoding='UTF-8')
@@ -71,7 +77,7 @@ if args.all:
 	df2 = pd.DataFrame(data)
 	print(tabulate(df2, headers='keys', tablefmt='psql'))
 	vulns(df)
-	fix(df)
+	fix(df,args.exportfix)
 	hosts(df)
 
 if args.risk:
