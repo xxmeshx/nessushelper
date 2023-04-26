@@ -18,17 +18,15 @@ parser.add_argument('--v', action='store', help='Show the vulnerabilities by Ris
 parser.add_argument('--host', action='store_true', help='Show the vulnerabilities by Host')
 parser.add_argument('--all', action='store_true', help='Show all available information')
 
+
 args = parser.parse_args()
-print(args.csv)
-print(args.exportfix)
 def hosts(df):
 	df=df
 	hosts = list(df['Host'].value_counts().keys())
 	count = df['Host'].value_counts().tolist()
-	#plotext.title('vulnerabilities per host')
 	plotext.simple_bar(hosts,count,title="Vulnerabilities per host")
 	plotext.show()
-def vulns(df,export=''):
+def vulns(df,export=None):
 	export=export
 	df=df
 	vuln_name = []
@@ -52,7 +50,7 @@ def vulns(df,export=''):
 		exportar.to_csv(args.exportvulns+'.csv',sep=',',encoding='utf-8')
 		print(args.exportvulns+'.csv exported correctly')
 	return print(tabulate(data, headers='keys', tablefmt='psql'))
-def fix(df,export=''):
+def fix(df,export=None):
 	df=df
 	export=export
 	vuln_name = []
@@ -73,11 +71,11 @@ data = pd.read_csv(args.csv,sep=',', encoding='UTF-8')
 df = data.loc[(data['Risk'] != 'None')]
 
 if args.all:
-	data = {'Criticity': list(df['Risk'].value_counts().keys()),'# vulns': df['Risk'].value_counts().tolist()}
-	df2 = pd.DataFrame(data)
-	print(tabulate(df2, headers='keys', tablefmt='psql'))
-	vulns(df)
-	fix(df,args.exportfix)
+	#data = {'Criticity': list(df['Risk'].value_counts().keys()),'# vulns': df['Risk'].value_counts().tolist()}
+	#df2 = pd.DataFrame(data)
+	#print(tabulate(df2, headers='keys', tablefmt='psql'))
+	vulns(df,args.exportvulns)
+	fix(df)
 	hosts(df)
 
 if args.risk:
@@ -88,14 +86,11 @@ if args.vulns:
 	if args.v:
 		vulne = df[['Host','Name','Plugin Output']].loc[(df['Name'] == args.v)].replace({'\n':''}, regex=True).reset_index()
 		print(vulne[['Host','Plugin Output']])
-		#print(tabulate(vulne, headers='keys', tablefmt='psql'))
 	else:
 		vulns(df)
 if args.host:
 	hosts(df)
 if args.fix:
-	if args.export:
-		fix(df,args.export)
+	if args.exportfix:
+		fix(df,args.exportfix)
 	fix(df)
-
-
