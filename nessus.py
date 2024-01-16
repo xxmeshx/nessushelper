@@ -55,9 +55,9 @@ def fix(df,export=None):
 	export=export
 	vuln_name = []
 	vuln_fix = []
-	#print(list(set(df['Name'].tolist())))
 	for x in list(set(df['Name'].tolist())):
 		all_vulns = df[['Host','Name','Plugin Output']].loc[(df['Name'] == x)]
+		all_vulns = all_vulns[['Host','Name','Plugin Output']].fillna('-')
 		vuln_name.append(x)
 		vuln_fix.append(', '.join(list(set(all_vulns['Plugin Output'].tolist()))))
 		data = {'Vulnerability': vuln_name, 'Fix': vuln_fix}
@@ -71,9 +71,9 @@ data = pd.read_csv(args.csv,sep=',', encoding='UTF-8')
 df = data.loc[(data['Risk'] != 'None')]
 
 if args.all:
-	#data = {'Criticity': list(df['Risk'].value_counts().keys()),'# vulns': df['Risk'].value_counts().tolist()}
-	#df2 = pd.DataFrame(data)
-	#print(tabulate(df2, headers='keys', tablefmt='psql'))
+	data = {'Criticity': list(df['Risk'].value_counts().keys()),'# vulns': df['Risk'].value_counts().tolist()}
+	df2 = pd.DataFrame(data)
+	print(tabulate(df2, headers='keys', tablefmt='psql'))
 	vulns(df,args.exportvulns)
 	fix(df)
 	hosts(df)
